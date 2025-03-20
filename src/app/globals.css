@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+html, body {
+  overflow: hidden;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import KrishiMap from "./Map";
 
-export default function Navbar() {
+export default function Navbar({children}) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
+  
   return (
     <div className="relative">
       {/* Navbar */}
@@ -38,26 +39,17 @@ export default function Navbar() {
       </div>
 
       {/* Main Content */}
-      <div className="pt-16 transition-all duration-300 bg-base-200">
-        <div className="h-[calc(100vh-4rem)] w-full overflow-hidden relative">
-          <img
-            src="https://images.unsplash.com/photo-1553080608-195dfe15293c?q=80&w=2581&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Landscape"
-            className="rounded-lg transition-all duration-300 object-cover"
-            style={{
-              width: isDrawerOpen ? "calc(100% - 620px)" : "100%",
-              marginLeft: isDrawerOpen ? "620px" : "0",
-              transition: "all 0.3s ease-in-out",
-            }}
-          />
+      <div className="pt-16 transition-all duration-5300 bg-base-200">
+        <div className="h-[calc(100vh-4rem)] w-full overflow-hidden relative"
+        style={{marginLeft: isDrawerOpen ? "620px" : "0", transition: "all 0.3s ease-in-out"}}>
+´          <KrishiMap width={isDrawerOpen ? "calc(100% - 620px)" : "100%"} small={isDrawerOpen} ></KrishiMap>
         </div>
       </div>
 
       {/* Sidebar */}
       <div
-        className={`fixed top-[4rem] left-0 h-[calc(100vh-4rem)] w-[620px] bg-base-200 shadow-lg transition-transform duration-300 z-50 flex ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-[4rem] left-0 h-[calc(100vh-4rem)] w-[620px] bg-base-200 shadow-lg transition-transform duration-300 ease-in-out z-50 flex`}
+        style={{transition: "all 0.3s ease-in-out", transform: isDrawerOpen ? "translateX(0px)" : "translateX(-100%)"}}
       >
         {/* Linke Leiste (80px) */}
         <div className="w-[80px] bg-base-300 flex flex-col items-center p-4">
