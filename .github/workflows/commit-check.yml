@@ -1,0 +1,64 @@
+name: Commit Message Check
+
+on: [push, pull_request]
+
+jobs:
+  commit-message-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history to check for sequence
+
+      - name: Validate commit messages
+        run: |
+          # Define allowed prefixes
+          PATTERN="^(GDSYNKT|GDSYNKL|GDSYNKK|GDSYNKH)-([0-9]+): .+$"
+
+          # Get all commits in this push/PR
+          commits=$(git log --format=%s --no-merges origin/main..HEAD)
+
+          # Fetch all past commit messages
+          all_commit_messages=$(git log --format=%s)
+
+          # Track the highest existing number per prefix
+          declare -A latest_commit_number
+
+          # Find the latest commit number per prefix
+          while IFS= read -r commit; do
+            if [[ $commit =~ $PATTERN ]]; then
+              prefix="${BASH_REMATCH[1]}"
+              number="${BASH_REMATCH[2]}"
+              
+              if [[ -z ${latest_commit_number[$prefix]} || ${number} -gt ${latest_commit_number[$prefix]} ]]; then
+                latest_commit_number[$prefix]=$number
+              fi
+            fi
+          done <<< "$all_commit_messages"
+
+          # Validate new commits
+          while IFS= read -r commit; do
+            if [[ $commit =~ $PATTERN ]]; then
+              prefix="${BASH_REMATCH[1]}"
+              number="${BASH_REMATCH[2]}"
+              expected_number=$((latest_commit_number[$prefix] + 1))
+
+              # Ensure numbers increase sequentially
+              if [[ -n ${latest_commit_number[$prefix]} && $number -ne $expected_number ]]; then
+                echo "❌ Invalid commit: '$commit'."
+                echo "🚨 Expected '${prefix}-$expected_number' but got '${prefix}-$number'."
+                exit 1
+              fi
+
+              # Ensure no duplicates
+              if echo "$all_commit_messages" | grep -Fxq "$commit"; then
+                echo "❌ Duplicate commit message found: '$commit'"
+                exit 1
+              fi
+            else
+              echo "❌ Invalid commit format: '$commit'."
+              echo "✅ Format required: 'GDSYNKT-123' (or GDSYNKL/GDSYNKK/GDSYNKH)"
+              exit 1
+            fi
+          done <<< "$commits"
