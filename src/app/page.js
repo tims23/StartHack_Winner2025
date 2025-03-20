@@ -1,6 +1,3 @@
-import Image from "next/image";
-import Navbar from "./components/Navbar";
-import CropsList from "./components/CropsList";
 import KrishiMap from "./components/Map";
 
 export default async function Home() {
