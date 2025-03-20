@@ -1,9 +1,9 @@
-name: Commit Message Check
+name: Commit Subject Check
 
 on: [push, pull_request]
 
 jobs:
-  commit-message-check:
+  commit-subject-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -11,23 +11,23 @@ jobs:
         with:
           fetch-depth: 0  # Fetch full history to check sequence and duplicates
 
-      - name: Validate commit messages
+      - name: Validate commit subjects
         run: |
-          # Define the allowed pattern
+          # Define the required pattern
           PATTERN="^(GDSYNKT|GDSYNKL|GDSYNKK|GDSYNKH)-([0-9]+): .+$"
 
-          # Get all new commits in this push/PR
+          # Get all new commit subjects (first line only)
           commits=$(git log --format=%s --no-merges origin/main..HEAD)
 
-          # Fetch all past commit messages
-          all_commit_messages=$(git log --format=%s)
+          # Fetch all past commit subjects
+          all_commit_subjects=$(git log --format=%s)
 
           # Track the highest existing number per prefix
           declare -A latest_commit_number
 
           # Find the latest commit number per prefix
-          while IFS= read -r commit; do
-            if [[ $commit =~ $PATTERN ]]; then
+          while IFS= read -r subject; do
+            if [[ $subject =~ $PATTERN ]]; then
               prefix="${BASH_REMATCH[1]}"
               number="${BASH_REMATCH[2]}"
               
@@ -35,30 +35,30 @@ jobs:
                 latest_commit_number[$prefix]=$number
               fi
             fi
-          done <<< "$all_commit_messages"
+          done <<< "$all_commit_subjects"
 
-          # Validate new commits
-          while IFS= read -r commit; do
-            if [[ $commit =~ $PATTERN ]]; then
+          # Validate new commit subjects
+          while IFS= read -r subject; do
+            if [[ $subject =~ $PATTERN ]]; then
               prefix="${BASH_REMATCH[1]}"
               number="${BASH_REMATCH[2]}"
               expected_number=$((latest_commit_number[$prefix] + 1))
 
               # Ensure numbers increase sequentially
               if [[ -n ${latest_commit_number[$prefix]} && $number -ne $expected_number ]]; then
-                echo "❌ Invalid commit: '$commit'."
-                echo "🚨 Expected '${prefix}-$expected_number: <message>' but got '${commit}'."
+                echo "❌ Invalid commit: '$subject'."
+                echo "🚨 Expected '${prefix}-$expected_number: <subject>' but got '${subject}'."
                 exit 1
               fi
 
-              # Ensure no duplicate commit messages
-              if echo "$all_commit_messages" | grep -Fxq "$commit"; then
-                echo "❌ Duplicate commit message found: '$commit'"
+              # Ensure no duplicate subjects
+              if echo "$all_commit_subjects" | grep -Fxq "$subject"; then
+                echo "❌ Duplicate commit subject found: '$subject'"
                 exit 1
               fi
             else
-              echo "❌ Invalid commit format: '$commit'."
-              echo "✅ Expected format: 'GDSYNKT-123: Description' (or GDSYNKL/GDSYNKK/GDSYNKH)"
+              echo "❌ Invalid commit subject format: '$subject'."
+              echo "✅ Expected format: 'GDSYNKT-123: Subject' (or GDSYNKL/GDSYNKK/GDSYNKH)"
               exit 1
             fi
           done <<< "$commits"
