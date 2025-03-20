@@ -16,7 +16,7 @@ export default function MonthSlider({isDrawerOpen}) {
             role="alert"
             className="alert alert-vertical alert-success sm:alert-horizontal absolute bottom-22 w-full"
             style={{
-              left: isDrawerOpen ? "calc(42% + 310px)" : "42%",
+              left: isDrawerOpen ? "calc(42% - 310px)" : "42%",
               transition: "all 0.3s ease-in-out",
               maxWidth: "320px",
             }}
@@ -50,7 +50,7 @@ export default function MonthSlider({isDrawerOpen}) {
             value={rangeValue}
             className="range range-lg range-success absolute bottom-12"
             style={{
-              left: isDrawerOpen ? "calc(42% + 310px)" : "42%",
+              left: isDrawerOpen ? "calc(42% - 310px)" : "42%",
               transition: "all 0.3s ease-in-out",
             }}
             onChange={handleRangeChange}
