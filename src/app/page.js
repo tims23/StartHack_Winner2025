@@ -1,6 +1,18 @@
 import Image from "next/image";
+import { supabase } from '@/lib/supabase';  // Import Supabase client
 
-export default function Home() {
+async function getCrops() {
+  const { data, error } = await supabase.from('Crop').select('*');
+  if (error) {
+    throw new Error(error.message);
+  }
+  console.log("test", data)
+  return data;
+}
+
+export default async function Home() {
+  const crops = await getCrops();
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -20,6 +32,9 @@ export default function Home() {
             </code>
             .
           </li>
+          {crops.map((crop) => (
+      <li key={crop.label}>{crop.label}</li>
+    ))}
           <li className="tracking-[-.01em]">
             Save and see your changes instantly.
           </li>
