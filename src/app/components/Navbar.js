@@ -4,13 +4,23 @@ import { useState } from "react";
 
 export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [rangeValue, setRangeValue] = useState(60); // State to hold the range value
+  const [activeSidebar, setActiveSidebar] = useState(1); // State to track active sidebar
+
+  const handleRangeChange = (event) => {
+    setRangeValue(event.target.value); // Update the state when the range value changes
+  };
+
+  const handleSidebarChange = (index) => {
+    setActiveSidebar(index); // Set the active sidebar view based on selected icon
+  };
 
   return (
     <div className="relative">
       {/* Navbar */}
       <div className="navbar bg-base-100 shadow-sm fixed top-0 left-0 w-full z-50 flex items-center p-2">
         <button
-          className="p-2 rounded-md flex items-center justify-center ml-4" // Add ml-4 here
+          className="p-2 rounded-md flex items-center justify-center ml-4"
           onClick={() => {
             setIsDrawerOpen(!isDrawerOpen);
             console.log("Sidebar-Toggle:", !isDrawerOpen);
@@ -50,6 +60,49 @@ export default function Navbar() {
               transition: "all 0.3s ease-in-out",
             }}
           />
+
+          {/* Range description */}
+          <div
+            role="alert"
+            className="alert alert-vertical alert-success sm:alert-horizontal absolute bottom-22 w-full"
+            style={{
+              left: isDrawerOpen ? "calc(42% + 310px)" : "42%",
+              transition: "all 0.3s ease-in-out",
+              maxWidth: "320px",
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="stroke-black h-6 w-6 shrink-0"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <div>
+              <h3 className="font-bold">September</h3>
+              <div className="text-xs">Please select the time you want to start growing your crops.</div>
+            </div>
+          </div>
+
+          {/* Range input */}
+          <input
+            type="range"
+            min={0}
+            max="100"
+            value={rangeValue}
+            className="range range-lg range-success absolute bottom-12"
+            style={{
+              left: isDrawerOpen ? "calc(42% + 310px)" : "42%",
+              transition: "all 0.3s ease-in-out",
+            }}
+            onChange={handleRangeChange}
+          />
         </div>
       </div>
 
@@ -59,26 +112,47 @@ export default function Navbar() {
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Linke Leiste (80px) */}
-        <div className="w-[80px] bg-base-300 flex flex-col items-center p-4">
-          <button className="mb-4">🔍</button>
-          <button className="mb-4">📂</button>
-          <button className="mb-4">⚙️</button>
+        {/* Left Sidebar (80px) */}
+        <div className="w-[80px] bg-base-300 flex flex-col items-center p-6">
+          <button
+            className={`mb-4 p-2 ${
+                activeSidebar === 1 ? "text-blue-500" : "text-gray-500"
+              }`}
+            onClick={() => handleSidebarChange(1)} // Change to Sidebar 1 content
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+              <path d="M6 3a3 3 0 0 0-3 3v1.5a.75.75 0 0 0 1.5 0V6A1.5 1.5 0 0 1 6 4.5h1.5a.75.75 0 0 0 0-1.5H6ZM16.5 3a.75.75 0 0 0 0 1.5H18A1.5 1.5 0 0 1 19.5 6v1.5a.75.75 0 0 0 1.5 0V6a3 3 0 0 0-3-3h-1.5ZM12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5ZM4.5 16.5a.75.75 0 0 0-1.5 0V18a3 3 0 0 0 3 3h1.5a.75.75 0 0 0 0-1.5H6A1.5 1.5 0 0 1 4.5 18v-1.5ZM21 16.5a.75.75 0 0 0-1.5 0V18a1.5 1.5 0 0 1-1.5 1.5h-1.5a.75.75 0 0 0 0 1.5H18a3 3 0 0 0 3-3v-1.5Z" />
+            </svg>
+          </button>
+
+          <button
+            className={`mb-4 p-2 ${
+                activeSidebar === 2 ? "text-blue-500" : "text-gray-500"
+              }`}
+            onClick={() => handleSidebarChange(2)} // Change to Sidebar 2 content
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+              <path fillRule="evenodd" d="M2.25 13.5a8.25 8.25 0 0 1 8.25-8.25.75.75 0 0 1 .75.75v6.75H18a.75.75 0 0 1 .75.75 8.25 8.25 0 0 1-16.5 0Z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M12.75 3a.75.75 0 0 1 .75-.75 8.25 8.25 0 0 1 8.25 8.25.75.75 0 0 1-.75.75h-7.5a.75.75 0 0 1-.75-.75V3Z" clipRule="evenodd" />
+            </svg>
+          </button>
+          <button
+            className={`mb-4 p-2 ${
+                activeSidebar === 3 ? "text-blue-500" : "text-gray-500"
+              }`}
+            onClick={() => handleSidebarChange(3)} // Change to Sidebar 3 content
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+              <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
+            </svg>
+          </button>
         </div>
 
-        {/* Rechte Leiste (540px) */}
-        <div className="w-[540px] p-4">
-          <ul className="menu">
-            <li>
-              <a>Item 1</a>
-            </li>
-            <li>
-              <a>Item 2</a>
-            </li>
-            <li>
-              <a>Item 3</a>
-            </li>
-          </ul>
+        {/* Right Sidebar (540px) */}
+        <div className="w-[540px] p-6 overflow-auto">
+          {activeSidebar === 1 && <div>Content for Sidebar 1</div>}
+          {activeSidebar === 2 && <div>Content for Sidebar 2</div>}
+          {activeSidebar === 3 && <div>Content for Sidebar 3</div>}
         </div>
       </div>
     </div>
