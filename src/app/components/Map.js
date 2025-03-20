@@ -13,22 +13,40 @@ const paragraphStyle = {
   margin: 0,
   fontSize: 13
 };
-
-const KrishiMap = () => {
+const KrishiMap = ({width, small}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
   const drawRef = useRef();
   const markerRef = useRef(null);
   const [roundedArea, setRoundedArea] = useState();
+  const [zoom, setZoom] = useState(12)
 
   useEffect(() => {
-    mapboxgl.accessToken = 'pk.eyJ1IjoidGltc2EyMyIsImEiOiJjbThocDQxdGcwM3FqMmpzZjFueDdpN2owIn0.fA1ZEFy3uX0k8pKH8cxVsg';
+    if (small) {
+        setZoom(mapRef.current.getZoom())
+    }
+    if (mapRef.current) {
+      const timeout = setTimeout(() => {
+        mapRef.current.flyTo({
+          zoom: small ? zoom-0.5 : zoom,
+          essential: true, // Ensures animation is visible to all users
+          duration: 300, // Smooth animation over 5.3 seconds
+          curve: 1.8
+        });
+      }, 300); // Delay of 1 second before flyTo is executed
+  
+      return () => clearTimeout(timeout); // Cleanup in case the component unmounts or `small` changes
+    }
+  }, [small]);
+
+  useEffect(() => {
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/satellite-v9',
       center: [-91.874, 42.76],
-      zoom: 12
+      zoom: small ? 11 : 12
     });
 
     const draw = new MapboxDraw({
@@ -114,7 +132,7 @@ const KrishiMap = () => {
   }
 
   return (
-    <div ref={mapContainerRef} id="map" style={{ height: '100%' }}></div>
+    <div ref={mapContainerRef} id="map" style={{ height: '100%', width: width, transition: "all 0.3s ease-in-out"}}></div>
   );
 };
 
