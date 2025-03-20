@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { supabase } from '@/lib/supabase';  // Import Supabase client
+import Navbar from "./components/Navbar";
 
 async function getCrops() {
   const { data, error } = await supabase.from('Crop').select('*');
@@ -32,6 +33,7 @@ export default async function Home() {
             </code>
             .
           </li>
+          <Navbar />
           {crops.map((crop) => (
       <li key={crop.label}>{crop.label}</li>
     ))}
