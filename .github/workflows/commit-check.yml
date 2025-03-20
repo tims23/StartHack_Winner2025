@@ -9,14 +9,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch full history to check for sequence
+          fetch-depth: 0  # Fetch full history to check sequence and duplicates
 
       - name: Validate commit messages
         run: |
-          # Define allowed prefixes
+          # Define the allowed pattern
           PATTERN="^(GDSYNKT|GDSYNKL|GDSYNKK|GDSYNKH)-([0-9]+): .+$"
 
-          # Get all commits in this push/PR
+          # Get all new commits in this push/PR
           commits=$(git log --format=%s --no-merges origin/main..HEAD)
 
           # Fetch all past commit messages
@@ -47,18 +47,18 @@ jobs:
               # Ensure numbers increase sequentially
               if [[ -n ${latest_commit_number[$prefix]} && $number -ne $expected_number ]]; then
                 echo "❌ Invalid commit: '$commit'."
-                echo "🚨 Expected '${prefix}-$expected_number' but got '${prefix}-$number'."
+                echo "🚨 Expected '${prefix}-$expected_number: <message>' but got '${commit}'."
                 exit 1
               fi
 
-              # Ensure no duplicates
+              # Ensure no duplicate commit messages
               if echo "$all_commit_messages" | grep -Fxq "$commit"; then
                 echo "❌ Duplicate commit message found: '$commit'"
                 exit 1
               fi
             else
               echo "❌ Invalid commit format: '$commit'."
-              echo "✅ Format required: 'GDSYNKT-123' (or GDSYNKL/GDSYNKK/GDSYNKH)"
+              echo "✅ Expected format: 'GDSYNKT-123: Description' (or GDSYNKL/GDSYNKK/GDSYNKH)"
               exit 1
             fi
           done <<< "$commits"
