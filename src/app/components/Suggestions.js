@@ -165,7 +165,7 @@ const getMatchInformation = async (
   };
 };
 
-export default function Category2() {
+export default function Suggestions({selectedMonth}) {
   const [cropData, setCropData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -209,17 +209,17 @@ export default function Category2() {
           Optimal Product Recommendations
         </h3>
         <p>
-          Based on your location, get tailored crop suggestions to maximize
+          Based on your location and date, get tailored crop suggestions to maximize
           yields. Simply select your land on the map, and receive personalized
           recommendations for a successful harvest.
         </p>
-        <div className="relative mt-8">
-          <button
-            className="btn m-1 btn-wide-2 btn-dash btn-success"
-            onClick={toggleDropdown}
-            style={{ width: "500px" }}
-          >
-            {selectedCrop || "Select a crop"}
+        <br></br>
+        <p>You will see suggestions for {selectedMonth}</p>
+        <div className="relative">
+          {/* Changed div to a button for proper accessibility */}
+          <button className="btn m-1 btn-wide-4" onClick={toggleDropdown}>
+            {selectedCrop ? selectedCrop : "Select a crop"}{" "}
+            {/* Display the selected crop */}
           </button>
 
           {isDropdownOpen && (
