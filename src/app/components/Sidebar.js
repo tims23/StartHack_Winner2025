@@ -1,8 +1,8 @@
-import Category1 from "./Category1";
+import Search from "./Search";
 import Category2 from "./Category2";
 import Category3 from "./Category3";
 
-export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCategory}) {
+export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCategory, setPosition}) {
     return (
         <div>
                   {/* Sidebar */}
@@ -74,7 +74,7 @@ export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCatego
 
         {/* Right Sidebar content */}
         <div className="flex-1 p-6 bg-base-200">
-          {activeCategory === "category1" && <Category1 />}
+          {activeCategory === "category1" && <Search setPosition={setPosition} />}
           {activeCategory === "category2" && <Category2 />}
           {activeCategory === "category3" && <Category3 />}
         </div>

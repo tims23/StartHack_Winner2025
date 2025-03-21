@@ -13,7 +13,7 @@ const paragraphStyle = {
   margin: 0,
   fontSize: 13
 };
-const KrishiMap = ({width, small}) => {
+const KrishiMap = ({width, small, position}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
   const drawRef = useRef();
@@ -40,12 +40,24 @@ const KrishiMap = ({width, small}) => {
   }, [small]);
 
   useEffect(() => {
+    if (!mapRef.current) { return }
+
+    mapRef.current.flyTo({
+        zoom: 12,
+        essential: true, // Ensures animation is visible to all users
+        duration: 3000, // Smooth animation over 5.3 seconds
+        curve: 1.8,
+        center: position
+      });
+  }, [position])
+
+  useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/satellite-v9',
-      center: [-91.874, 42.76],
+      center: position,
       zoom: small ? 11 : 12
     });
 
