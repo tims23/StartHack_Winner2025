@@ -3,7 +3,39 @@
 import { useState } from "react";
 
 export default function MonthSlider({isDrawerOpen}) {
-    const [rangeValue, setRangeValue] = useState(60); // State to hold the range value
+    const [rangeValue, setRangeValue] = useState(1); // State to hold the range value
+
+    const mapMonth = (mNumber) => {
+        const monthNumber = parseInt(mNumber, 10); // Convert string to number
+        switch (monthNumber) {
+            case 1:
+                return "January";
+            case 2:
+                return "February";
+            case 3:
+                return "March";
+            case 4:
+                return "April";
+            case 5:
+                return "May";
+            case 6:
+                return "June";
+            case 7:
+                return "July";
+            case 8:
+                return "August";
+            case 9:
+                return "September";
+            case 10:
+                return "October";
+            case 11:
+                return "November";
+            case 12:
+                return "December";
+            default:
+                return "Invalid month number";
+        }
+    }
 
     const handleRangeChange = (event) => {
         setRangeValue(event.target.value); // Update the state when the range value changes
@@ -35,7 +67,7 @@ export default function MonthSlider({isDrawerOpen}) {
               ></path>
             </svg>
             <div>
-              <h3 className="font-bold">September</h3>
+              <h3 className="font-bold">{mapMonth(rangeValue)}</h3>
               <div className="text-xs">
                 Please select the time you want to start growing your crops.
               </div>
@@ -45,10 +77,10 @@ export default function MonthSlider({isDrawerOpen}) {
           {/* Range input */}
           <input
             type="range"
-            min={0}
-            max="100"
+            min={1}
+            max={12}
             value={rangeValue}
-            className="range range-lg range-success absolute bottom-12"
+            className="range range-lg range-success absolute bottom-12 [--range-bg:white] [--range-fill:0]"
             style={{
               left: isDrawerOpen ? "calc(42% - 310px)" : "42%",
               transition: "all 0.3s ease-in-out",
