@@ -527,25 +527,98 @@ export default function Suggestions({selectedMonth}) {
                 marginTop: "5px",
               }}
             ></div>
-            <div className="card bg-base-100 w-96 shadow-sm">
-              <figure>
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-                  alt="Shoes"
-                />
-              </figure>
-              <div className="card-body">
-                <h2 className="card-title">
-                  Card Title
-                  <div className="badge badge-secondary">NEW</div>
-                </h2>
-                <p>
-                  A card component has a figure, a body part, and inside body
-                  there are title and actions parts
-                </p>
-                <div className="card-actions justify-end">
-                  <div className="badge badge-outline">Fashion</div>
-                  <div className="badge badge-outline">Products</div>
+
+            <div className="flex flex-wrap gap-6">
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syngenta_large_4_3/public/media/image/2021/03/19/banner_2_48546calaris.jpeg?itok=alnxj2wb"
+                    alt="Calaris Xtra"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">
+                  Calaris Xtra
+                    <div className="badge badge-success ml-10">NEW</div>
+                  </h2>
+                  <p>
+                  Presenting Calaris Xtra, India's first pre-mix herbicide: Inspired by nature to deliver better and long duration control of grass weeds and broad leaf weeds.
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/calaris-xtra">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover w-full"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syn_full_width_scale/public/media/image/2022/04/12/sugar_75_edit.jpg?itok=C6fhU1b8"
+                    alt="Sugar 75"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">Sugar 75
+                  </h2>
+                  <p>
+                  High-yield hybrid seed with robust pest resistance, adaptable across India, and optimized for efficiency.
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/product/seed/sweetcorn/sugar-75">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syngenta_large_4_3/public/media/image/2022/05/24/riffut_plus.png?itok=ri7Zzbh9"
+                    alt="Rifit Plus"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">
+                  Rifit Plus
+                  </h2>
+                  <p>
+                  Rifit Plus is an excellent weedicide for planted paddy with improved formula and high-quality spreaders.
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/rifit-plus">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syngenta_large_4_3/public/media/image/2022/04/26/half_new_isabion.jpg?itok=2lHRMXrt"
+                    alt="Isabion"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">
+                  Isabion
+                    <div className="badge badge-success ml-10">SALE</div>
+                  </h2>
+                  <p>
+                  Isabion, enables the plant to increase yield and quality of produce naturally. 
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/isabion">More Information</a>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
