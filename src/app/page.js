@@ -12,7 +12,7 @@ async function getCrops() {
 }
 
 export default async function Home() {
-  const crops = await getCrops();
+  //const crops = await getCrops();
   // DO NOT CHANGE THIS FILE
   return;
 }
