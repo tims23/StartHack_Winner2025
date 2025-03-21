@@ -543,7 +543,7 @@ export default function Suggestions({selectedMonth}) {
                     <div className="badge badge-success ml-10">NEW</div>
                   </h2>
                   <p>
-                  Presenting Calaris Xtra, India's first pre-mix herbicide: Inspired by nature to deliver better and long duration control of grass weeds and broad leaf weeds.
+                  Presenting Calaris Xtra, India&apos;s first pre-mix herbicide: Inspired by nature to deliver better and long duration control of grass weeds and broad leaf weeds.
                   </p>
                   <div className="card-actions justify-end mt-8">
                     <button className="btn btn-dash btn-success">
