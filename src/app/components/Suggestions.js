@@ -1,252 +1,185 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase"; // Import Supabase client
 
+// Fetch crops data from Supabase
 const getCrops = async () => {
   const { data, error } = await supabase.from("Crop").select("label");
-
-  if (error) {
-    throw new Error("Failed to read crop data from database");
-  } else {
-    return data;
-  }
+  if (error) throw new Error("Failed to read crop data from database");
+  return data;
 };
 
-const APIkey = process.env.CE_HISTORICAL_API_KEY;
+// Fetch crop data from Supabase by name
+const getCropData = async (cropName) => {
+  const { data, error } = await supabase
+    .from("Crop")
+    .select()
+    .eq("label", cropName)
+    .limit(1);
 
-const getCropData = async (imCropName) =>
-  new Promise(async (resolve, reject) => {
-    const { data, error } = await supabase
-      .from("Crop")
-      .select()
-      .eq("label", imCropName)
-      .limit(1);
+  if (error) throw new Error("Failed to read crop data from database");
+  return data;
+};
 
-    if (error) {
-      reject("Failed to read crop data from database");
-    } else {
-      resolve(data);
-    }
-  });
-
-const getAPIFieldData = async (
-  imLongitude,
-  imLatitude,
-  imStartDate,
-  imEndDate,
-) =>
-  new Promise(async (resolve, reject) => {
-    const requestPayload = {
-      units: {
-        temperature: "C",
-        velocity: "km/h",
-        length: "metric",
-        energy: "watts",
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [imLongitude, imLatitude, 0],
-      },
-      format: "json",
-      timeIntervals: [
-        imStartDate + "T00:00+00+00/" + imEndDate + "T01:00+00+00",
-      ],
-      queries: [
-        {
-          domain: "ERA5T",
-          gapFillDomain: null,
-          timeResolution: "daily",
-          codes: [
-            { code: 11, level: "2 m above gnd", aggregation: "mean" }, // Temp
-            { code: 11, level: "2 m above gnd", aggregation: "min" }, // Temp
-            { code: 11, level: "2 m above gnd", aggregation: "max" }, // Temp
-            { code: 85, level: "0-7 cm down", aggregation: "mean" }, // Soil Temp
-            { code: 61, level: "sfc", aggregation: "sum" }, // Precipation
-            { code: 261, level: "sfc" }, // Evaporation
-            { code: 144, level: "0-7 cm down", aggregation: "mean" }, // Soil moisture
-          ],
-          transformations: [
-            {
-              type: "aggregateMonthly",
-              aggregation: "mean",
-            },
-          ],
-        },
-        /*{
-                domain: "WISE30",
-                gapFillDomain: null,
-                timeResolution: "daily",
-                codes: [
-                    //{ code: 812, level: "0 cm", aggregation: "mean"}          
-                    { code: 817, level: "0-20 cm", aggregation: "mean"}
-                ],
-                transformations: [
-                    {
-                        type: "aggregateMonthly",
-                        aggregation: "mean"
-                    }
-                ]
-            }*/
-      ],
-    };
-
-    const result = await fetch(
-      "http://my.meteoblue.com/dataset/query?apikey=" + APIkey,
+// Fetch weather field data from API
+const getAPIFieldData = async (longitude, latitude, startDate, endDate) => {
+  const requestPayload = {
+    units: {
+      temperature: "C",
+      velocity: "km/h",
+      length: "metric",
+      energy: "watts",
+    },
+    geometry: { type: "Point", coordinates: [longitude, latitude, 0] },
+    format: "json",
+    timeIntervals: [`${startDate}T00:00+00+00/${endDate}T01:00+00+00`],
+    queries: [
       {
-        method: "Post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestPayload),
+        domain: "ERA5T",
+        timeResolution: "daily",
+        codes: [
+          { code: 11, level: "2 m above gnd", aggregation: "mean" }, // Temp
+          { code: 11, level: "2 m above gnd", aggregation: "min" }, // Temp
+          { code: 11, level: "2 m above gnd", aggregation: "max" }, // Temp
+          { code: 85, level: "0-7 cm down", aggregation: "mean" }, // Soil Temp
+          { code: 61, level: "sfc", aggregation: "sum" }, // Precipitation
+          { code: 261, level: "sfc" }, // Evaporation
+          { code: 144, level: "0-7 cm down", aggregation: "mean" }, // Soil moisture
+        ],
       },
-    );
+    ],
+  };
 
-    resolve(await result.json());
-  });
+  const result = await fetch(
+    `http://my.meteoblue.com/dataset/query?apikey=${process.env.CE_HISTORICAL_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestPayload),
+    },
+  );
 
-const getFieldData = async (imLongitude, imLatitude, imTargetMonth) =>
-  new Promise(async (resolve, reject) => {
-    const { data, error } = await supabase
-      .from("Field")
-      .select()
-      .eq("longitude", imLongitude)
-      .eq("latitude", imLatitude)
-      .eq("month", imTargetMonth)
-      .eq("year", "2024")
-      .limit(1);
+  const data = await result.json();
+  return data;
+};
 
-    if (data === null || data.length == 0) {
-      // if data is not yet in database
+// Fetch field data from Supabase or external API
+const getFieldData = async (longitude, latitude, targetMonth) => {
+  const { data, error } = await supabase
+    .from("Field")
+    .select()
+    .eq("longitude", longitude)
+    .eq("latitude", latitude)
+    .eq("month", targetMonth)
+    .eq("year", "2024")
+    .limit(1);
 
-      const rawData = await getAPIFieldData(
-        imLongitude,
-        imLatitude,
-        "2024-01-01",
-        "2024-12-31",
-      );
+  if (data && data.length > 0) return data;
 
-      // lets reformat data into database ready
-      let dataToBeInserted = [];
-      for (let i = 0; i < rawData[0].timeIntervals[0].length; i++) {
-        dataToBeInserted.push({
-          longitude: imLongitude,
-          latitude: imLatitude,
-          month: i + 1,
-          year: "2024",
-          temp_min: Math.round(
-            rawData[0].codes[0].dataPerTimeInterval[0].data[0][i],
-          ),
-          temp_max: Math.round(
-            rawData[0].codes[1].dataPerTimeInterval[0].data[0][i],
-          ),
-          temp_avg: Math.round(
-            rawData[0].codes[2].dataPerTimeInterval[0].data[0][i],
-          ),
-          soil_temp_avg: Math.round(
-            rawData[0].codes[3].dataPerTimeInterval[0].data[0][i],
-          ),
-          precipitation: Math.round(
-            rawData[0].codes[4].dataPerTimeInterval[0].data[0][i],
-          ),
-          evaporation: Math.round(
-            rawData[0].codes[5].dataPerTimeInterval[0].data[0][i],
-          ),
-          soil_moisture: Math.round(
-            rawData[0].codes[5].dataPerTimeInterval[0].data[0][i],
-          ),
-          //nitrogen: rawData[0].codes[0].data[0][0],
-          //ph: rawData[0].codes[0].data[0][0]
-        });
+  const rawData = await getAPIFieldData(
+    longitude,
+    latitude,
+    "2024-01-01",
+    "2024-12-31",
+  );
 
-        const { error } = await supabase.from("Field").insert(dataToBeInserted);
+  const dataToBeInserted = rawData[0].timeIntervals[0].map((_, i) => ({
+    longitude,
+    latitude,
+    month: i + 1,
+    year: "2024",
+    temp_min: Math.round(rawData[0].codes[0].dataPerTimeInterval[0].data[0][i]),
+    temp_max: Math.round(rawData[0].codes[1].dataPerTimeInterval[0].data[0][i]),
+    temp_avg: Math.round(rawData[0].codes[2].dataPerTimeInterval[0].data[0][i]),
+    soil_temp_avg: Math.round(
+      rawData[0].codes[3].dataPerTimeInterval[0].data[0][i],
+    ),
+    precipitation: Math.round(
+      rawData[0].codes[4].dataPerTimeInterval[0].data[0][i],
+    ),
+    evaporation: Math.round(
+      rawData[0].codes[5].dataPerTimeInterval[0].data[0][i],
+    ),
+    soil_moisture: Math.round(
+      rawData[0].codes[5].dataPerTimeInterval[0].data[0][i],
+    ),
+  }));
 
-        if (error) {
-          console.log("Database Error Occured" + error);
-          reject();
-        } else {
-          const { insertedData, error } = await supabase
-            .from("Field")
-            .select()
-            .eq("longitude", imLongitude)
-            .eq("latitude", imLatitude)
-            .eq("month", imTargetMonth)
-            .eq("year", "2024")
-            .limit(1);
+  const { error: insertError } = await supabase
+    .from("Field")
+    .insert(dataToBeInserted);
+  if (insertError) throw new Error("Database insert error");
 
-          if (error) {
-            console.log("Database Select after insert Error Occured" + error);
-            reject();
-          } else {
-            resolve(insertedData);
-          }
-        }
-      }
-    } else {
-      resolve(data);
-    }
-  });
+  const { data: insertedData, error: selectError } = await supabase
+    .from("Field")
+    .select()
+    .eq("longitude", longitude)
+    .eq("latitude", latitude)
+    .eq("month", targetMonth)
+    .eq("year", "2024")
+    .limit(1);
 
+  if (selectError) throw new Error("Failed to retrieve inserted data");
+
+  return insertedData;
+};
+
+// Calculate match information based on field and crop data
 const getMatchInformation = async (
-  imLongitude,
-  imLatitude,
-  imCropName,
-  imTargetMonth,
-) =>
-  new Promise(async (resolve, reject) => {
-    const fieldData = await getFieldData(
-      imLongitude,
-      imLatitude,
-      imTargetMonth,
-    );
-    const cropData = await getCropData(imCropName);
+  longitude,
+  latitude,
+  cropName,
+  targetMonth,
+) => {
+  const fieldData = await getFieldData(longitude, latitude, targetMonth);
+  const cropData = await getCropData(cropName);
 
-    let heatStress = 0.0;
-    if (fieldData[0].temp_max <= cropData[0].temperature_optimum) {
-      heatStress = 0.0;
-    } else if (fieldData[0].temp_max > cropData[0].temperature_max) {
-      heatStress = 9;
-    } else {
-      heatStress =
-        (fieldData[0].temp_max - cropData[0].temperature_optimum) /
-        (fieldData[0].temperature_max - cropData[0].temperature_optimum);
-    }
+  const heatStress =
+    fieldData[0].temp_max <= cropData[0].temperature_optimum
+      ? 0.0
+      : fieldData[0].temp_max > cropData[0].temperature_max
+        ? 9
+        : (fieldData[0].temp_max - cropData[0].temperature_optimum) /
+          (fieldData[0].temperature_max - cropData[0].temperature_optimum);
 
-    const minTemp = -20.0;
-    const maxTemp = 60.0;
-    const ratio_crop =
-      80 / (cropData[0].temperature_max - cropData[0].temperature_optimum);
-    const offset_crop =
-      ((cropData[0].temperature_optimum - minTemp) / (maxTemp - minTemp)) * 100;
-    const offset_field =
-      ((fieldData[0].temp_avg - minTemp) / (maxTemp - minTemp)) * 100;
+  const length_crop =
+    ((cropData[0].temperature_max - cropData[0].temperature_optimum) / 50) *
+    100;
+  const start_crop = (cropData[0].temperature_optimum / 50) * 100;
+  const status_field = (fieldData[0].temp_avg / 50) * 100;
 
-    resolve({
-      heatStress: heatStress,
-      field_temp_avg: fieldData[0].temp_max,
-      plant_temp_min: cropData[0].temperature_optimum,
-      plant_temp_max: cropData[0].temperature_max,
-      ratio_crop: ratio_crop,
-      offset_crop: offset_crop,
-      offset_field: offset_field,
-    });
-  });
+  console.log("temperature_max", cropData[0].temperature_max);
+  console.log("plant_temp_optimum", cropData[0].plant_temp_optimum);
+  console.log("temp_avg", fieldData[0].temp_avg);
+  console.log("length_crop", length_crop);
+  console.log("start_crop", start_crop);
+  console.log("status_field", status_field);
+
+  return {
+    heatStress,
+    field_temp_avg: fieldData[0].temp_avg,
+    plant_temp_optimum: cropData[0].temperature_optimum,
+    plant_temp_max: cropData[0].temperature_max,
+    length_crop,
+    start_crop,
+    status_field,
+  };
+};
 
 export default function Suggestions({selectedMonth}) {
   const [cropData, setCropData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCrop, setSelectedCrop] = useState(""); // Variable to store the selected crop
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track dropdown open/close state
+  const [selectedCrop, setSelectedCrop] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [matchInformation, setMatchInformation] = useState({});
 
   useEffect(() => {
-    const fetchCrops = async () => {
-      const test = await getMatchInformation(10, 50, "CORN", 5);
-      console.log(JSON.stringify(test));
+    const fetchData = async () => {
       try {
-        const data = await getCrops();
-        const sample = await getMatchInformation(10, 50, "CORN", 5);
-        setCropData(data);
-        setMatchInformation(sample);
+        const crops = await getCrops();
+        const matchInfo = await getMatchInformation(10, 50, "CORN", 5);
+        setCropData(crops);
+        setMatchInformation(matchInfo);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -254,31 +187,26 @@ export default function Suggestions({selectedMonth}) {
       }
     };
 
-    fetchCrops();
+    fetchData();
   }, []);
 
   const handleCropSelect = (crop) => {
-    setSelectedCrop(crop); // Update selected crop on selection
-    setIsDropdownOpen(false); // Close the dropdown after selection
+    setSelectedCrop(crop);
+    setIsDropdownOpen(false);
   };
 
   const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen); // Toggle dropdown visibility
+    setIsDropdownOpen((prevState) => !prevState);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="flex flex-col items-center justify-center transition-all duration-300">
       <div className="mb-6 mt-6">
         <h3 className="text-xl font-semibold mb-4 text-green-300">
-          Optimal Crop Recommendations
+          Optimal Product Recommendations
         </h3>
         <p>
           Based on your location and date, get tailored crop suggestions to maximize
@@ -294,61 +222,408 @@ export default function Suggestions({selectedMonth}) {
             {/* Display the selected crop */}
           </button>
 
-          {/* Conditionally render dropdown menu */}
           {isDropdownOpen && (
-            <ul className="dropdown-content menu bg-base-100 rounded-box z-10 w-52 p-2 shadow-sm mt-2 absolute">
+            <ul
+              className="dropdown-content menu bg-white text-black rounded-box z-10 mt-2 shadow-sm absolute ml-1"
+              style={{ width: "500px" }}
+            >
               {cropData.map((crop) => (
                 <li
+                  style={{ flexDirection: "initial" }}
                   key={crop.label}
                   onClick={() => handleCropSelect(crop.label)}
                 >
-                  <a>{crop.label}</a>
+                  <a
+                    className="ml-4 mr-4"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-around",
+                      width: "100%",
+                      padding: "5px",
+                      margin: 0,
+                      textAlign: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        margin: 0,
+                        padding: 0,
+                        lineHeight: 0.5,
+                      }}
+                    >
+                      🌽 {crop.label}
+                    </span>
+                    <span
+                      style={{
+                        flex: 1,
+                        margin: 0,
+                        padding: 0,
+                        lineHeight: 0.5,
+                      }}
+                    >
+                      Value Potential:{" "}
+                      <span className="text-green-500">60%</span>
+                    </span>
+                    <span
+                      style={{
+                        flex: 1,
+                        margin: 0,
+                        padding: 0,
+                        lineHeight: 0.5,
+                      }}
+                    >
+                      Very good
+                    </span>
+                  </a>
                 </li>
               ))}
             </ul>
           )}
         </div>
-
-        {/* Add dynamic margin-top based on dropdown state */}
         <div
-          className={`transition-all duration-300 ${isDropdownOpen ? "mt-32" : ""}`}
+          className={`transition-all duration-300 ${isDropdownOpen ? "mt-24" : ""}`}
         >
-          <h5 className="text-md font-semibold mb-4 text-green-300">
-            Heat Stress
+          <div className="flex w-full flex-col">
+            <h3 className="text-xl font-semibold mt-8 text-green-300">
+              Statistics
+            </h3>
+            <div
+              className="divider"
+              style={{
+                marginTop: "5px",
+              }}
+            ></div>
+          </div>
+
+          {/* Temperature */}
+          <h5
+            className="text-xl mt-0 mb-4 text-center"
+            style={{
+              marginTop: "-10px",
+              marginBottom: "-5px",
+            }}
+          >
+            Temperature
           </h5>
-
-          <div className="w-full h-4 bg-gray-300 mt-4 rounded-lg relative">
-            {/* First Division (Blue) */}
-            <div
-              className="absolute top-0 h-full bg-blue-400 rounded-lg"
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "-20px",
+            }}
+          >
+            <p
+              className="text-sd mt-0 mb-4 text-center text-gray-500"
               style={{
-                marginLeft: `${matchInformation.offset_crop}%`,
-                width: `${matchInformation.ratio_crop}%`,
-              }}
-            ></div>
-
-            {/* Second Division (Green) */}
-            <div
-              className="absolute top-0 h-full bg-green-400 rounded-lg"
-              style={{
-                marginLeft: `${matchInformation.offset_field}%`,
-                width: `4%`,
-              }}
-            ></div>
-
-            <div
-              className="absolute text-xs bg-black px-1 py-0.5 rounded shadow-md"
-              style={{
-                top: "-18px", // Moves label above the green div
-                left: `calc(${matchInformation.offset_field}% + 3.5%)`, // Position relative to green div
-                transform: "translateX(-50%)", // Centers it above the div
+                marginTop: "-10px",
               }}
             >
-              Field Temperature: {matchInformation.field_temp_avg}°
+              -10°C
+            </p>
+            <p
+              className="text-sd mt-0 mb-4 text-center text-gray-500"
+              style={{
+                marginTop: "-10px",
+              }}
+            >
+              40°C
+            </p>
+          </div>
+          <div
+            className="w-full h-4 bg-gray-300 mt-4 rounded-lg relative"
+            style={{
+              height: "20px",
+            }}
+          >
+            <div
+              className="absolute top-0 h-full bg-green-500 rounded-lg"
+              style={{
+                marginLeft: `${matchInformation.start_crop}%`,
+                width: `${matchInformation.length_crop}%`,
+                border: "1px solid lightgray",
+              }}
+            ></div>
+            <div
+              className="absolute top-0 h-full bg-green-700 rounded-lg"
+              style={{
+                marginLeft: `${matchInformation.status_field}%`,
+                width: `4%`,
+                border: "1px solid lightgray",
+              }}
+            ></div>
+          </div>
+          <div>
+            <div className="flex justify-center">
+              <div
+                className="mt-4 mr-4"
+                style={{
+                  display: "flex",
+                }}
+              >
+                <div
+                  className="rounded-xs"
+                  style={{
+                    backgroundColor: "green",
+                    width: "15px",
+                    height: "15px",
+                  }}
+                ></div>
+                <p
+                  style={{
+                    marginTop: "-5px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <span className="text-gray-300 mr-2">Your Field:</span>
+                  {matchInformation.field_temp_avg}°C
+                </p>
+              </div>
+              <div
+                className="mt-4 ml-4"
+                style={{
+                  display: "flex",
+                }}
+              >
+                <div
+                  className="rounded-xs"
+                  style={{
+                    backgroundColor: "lightgreen",
+                    width: "15px",
+                    height: "15px",
+                  }}
+                ></div>
+                <p
+                  style={{
+                    marginTop: "-5px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <span className="text-gray-300 mr-2">Optimal Range:</span>
+                  {matchInformation.plant_temp_optimum}°C –{" "}
+                  {matchInformation.plant_temp_max}°C
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Soil pH-Value */}
+          <h5
+            className="text-xl mt-0 mb-4 text-center"
+            style={{
+              marginTop: "30px",
+              marginBottom: "-5px",
+            }}
+          >
+            Soil pH-Value
+          </h5>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "-20px",
+            }}
+          >
+            <p
+              className="text-sd mt-0 mb-4 text-center text-gray-500"
+              style={{
+                marginTop: "-10px",
+              }}
+            >
+              pH 0
+            </p>
+            <p
+              className="text-sd mt-0 mb-4 text-center text-gray-500"
+              style={{
+                marginTop: "-10px",
+              }}
+            >
+              pH 14
+            </p>
+          </div>
+          <div
+            className="w-full h-4 bg-gray-300 mt-4 rounded-lg relative"
+            style={{
+              height: "20px",
+            }}
+          >
+            <div
+              className="absolute top-0 h-full bg-green-500 rounded-lg"
+              style={{
+                marginLeft: `10%`,
+                width: `40%`,
+                border: "1px solid lightgray",
+              }}
+            ></div>
+            <div
+              className="absolute top-0 h-full bg-green-700 rounded-lg"
+              style={{
+                marginLeft: `30%`,
+                width: `4%`,
+                border: "1px solid lightgray",
+              }}
+            ></div>
+          </div>
+          <div>
+            <div className="flex justify-center">
+              <div
+                className="mt-4 mr-4"
+                style={{
+                  display: "flex",
+                }}
+              >
+                <div
+                  className="rounded-xs"
+                  style={{
+                    backgroundColor: "green",
+                    width: "15px",
+                    height: "15px",
+                  }}
+                ></div>
+                <p
+                  style={{
+                    marginTop: "-5px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <span className="text-gray-300 mr-2">Your Field:</span>
+                  pH 5.5
+                </p>
+              </div>
+              <div
+                className="mt-4 ml-4"
+                style={{
+                  display: "flex",
+                }}
+              >
+                <div
+                  className="rounded-xs"
+                  style={{
+                    backgroundColor: "lightgreen",
+                    width: "15px",
+                    height: "15px",
+                  }}
+                ></div>
+                <p
+                  style={{
+                    marginTop: "-5px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <span className="text-gray-300 mr-2">Optimal Range:</span>
+                  pH 2.0 – pH 7.0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full flex-col">
+            <h3 className="text-xl font-semibold mt-8 text-green-300">
+              Recommentation
+            </h3>
+            <div
+              className="divider"
+              style={{
+                marginTop: "5px",
+              }}
+            ></div>
+
+            <div className="flex flex-wrap gap-6">
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syngenta_large_4_3/public/media/image/2021/03/19/banner_2_48546calaris.jpeg?itok=alnxj2wb"
+                    alt="Calaris Xtra"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">
+                  Calaris Xtra
+                    <div className="badge badge-success ml-10">NEW</div>
+                  </h2>
+                  <p>
+                  Presenting Calaris Xtra, India&apos;s first pre-mix herbicide: Inspired by nature to deliver better and long duration control of grass weeds and broad leaf weeds.
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/calaris-xtra">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover w-full"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syn_full_width_scale/public/media/image/2022/04/12/sugar_75_edit.jpg?itok=C6fhU1b8"
+                    alt="Sugar 75"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">Sugar 75
+                  </h2>
+                  <p>
+                  High-yield hybrid seed with robust pest resistance, adaptable across India, and optimized for efficiency.
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/product/seed/sweetcorn/sugar-75">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syngenta_large_4_3/public/media/image/2022/05/24/riffut_plus.png?itok=ri7Zzbh9"
+                    alt="Rifit Plus"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">
+                  Rifit Plus
+                  </h2>
+                  <p>
+                  Rifit Plus is an excellent weedicide for planted paddy with improved formula and high-quality spreaders.
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/rifit-plus">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card bg-base-100 w-60 shadow-sm">
+                <figure>
+                  <img
+                    className="h-40 object-cover"
+                    src="https://www.syngenta.co.in/sites/g/files/kgtney376/files/styles/syngenta_large_4_3/public/media/image/2022/04/26/half_new_isabion.jpg?itok=2lHRMXrt"
+                    alt="Isabion"
+                  />
+                </figure>
+                <div className="card-body">
+                  <h2 className="card-title">
+                  Isabion
+                    <div className="badge badge-success ml-10">SALE</div>
+                  </h2>
+                  <p>
+                  Isabion, enables the plant to increase yield and quality of produce naturally. 
+                  </p>
+                  <div className="card-actions justify-end mt-8">
+                    <button className="btn btn-dash btn-success">
+                      <a href="https://www.syngenta.co.in/isabion">More Information</a>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <p>Heat Stress: {matchInformation.heatStress}</p>
       </div>
     </div>
   );
