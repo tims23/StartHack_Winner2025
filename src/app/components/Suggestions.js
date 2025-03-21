@@ -529,7 +529,7 @@ export default function Suggestions({selectedMonth}) {
             ></div>
 
             <div className="flex flex-wrap gap-6">
-              <div className="card bg-base-100 w-60 shadow-sm">
+              <div className="card bg-base-100 w-55 shadow-sm">
                 <figure>
                   <img
                     className="h-40 object-cover"
@@ -553,7 +553,7 @@ export default function Suggestions({selectedMonth}) {
                 </div>
               </div>
 
-              <div className="card bg-base-100 w-60 shadow-sm">
+              <div className="card bg-base-100 w-55 shadow-sm">
                 <figure>
                   <img
                     className="h-40 object-cover w-full"
@@ -575,7 +575,7 @@ export default function Suggestions({selectedMonth}) {
                 </div>
               </div>
 
-              <div className="card bg-base-100 w-60 shadow-sm">
+              <div className="card bg-base-100 w-55 shadow-sm">
                 <figure>
                   <img
                     className="h-40 object-cover"
@@ -598,7 +598,7 @@ export default function Suggestions({selectedMonth}) {
                 </div>
               </div>
 
-              <div className="card bg-base-100 w-60 shadow-sm">
+              <div className="card bg-base-100 w-55 shadow-sm">
                 <figure>
                   <img
                     className="h-40 object-cover"
