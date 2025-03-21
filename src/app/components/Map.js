@@ -13,7 +13,7 @@ const paragraphStyle = {
   margin: 0,
   fontSize: 13
 };
-const KrishiMap = ({width, small, position}) => {
+const KrishiMap = ({width, small, position, setDragedMap}) => {
   const mapContainerRef = useRef();
   const mapRef = useRef();
   const drawRef = useRef();
@@ -70,11 +70,17 @@ const KrishiMap = ({width, small, position}) => {
       defaultMode: 'draw_polygon'
     });
 
+    const handleMoveEnd = () => {
+        const lngLat = mapRef.current.getCenter()
+        setDragedMap([lngLat.lng, lngLat.lat])
+    }
+
     mapRef.current.addControl(draw);
     drawRef.current = draw;
 
     mapRef.current.on('draw.create', handleNewPolygon);
     mapRef.current.on('draw.update', handleNewPolygon);
+    mapRef.current.on('moveend', handleMoveEnd);
   }, []);
 
   /** Ensures only one polygon exists at a time */

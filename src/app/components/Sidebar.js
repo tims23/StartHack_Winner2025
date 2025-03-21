@@ -2,7 +2,7 @@ import Search from "./Search";
 import Category2 from "./Category2";
 import Category3 from "./Category3";
 
-export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCategory, setPosition}) {
+export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCategory, setPosition, dragedMapPosition}) {
     return (
         <div>
                   {/* Sidebar */}
@@ -74,7 +74,7 @@ export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCatego
 
         {/* Right Sidebar content */}
         <div className="flex-1 p-6 bg-base-200">
-          {activeCategory === "category1" && <Search setPosition={setPosition} />}
+          {activeCategory === "category1" && <Search setPosition={setPosition} dragedMapPosition={dragedMapPosition}/>}
           {activeCategory === "category2" && <Category2 />}
           {activeCategory === "category3" && <Category3 />}
         </div>

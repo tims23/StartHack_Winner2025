@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid"; // Import UUID to generate session tokens
 
-export default function Search({setPosition}) {
+export default function Search({setPosition, dragedMapPosition}) {
   const [query, setQuery] = useState("");
   const [sessionToken, setSessionToken] = useState("");
 
@@ -31,6 +31,9 @@ export default function Search({setPosition}) {
           coordinates or the name, and get tailored agricultural insights and
           resources for your area.
         </p>
+        <br></br>
+        <p>Latitude: {dragedMapPosition[0]}</p>
+        <p>Latitude: {dragedMapPosition[1]}</p>
       </div>
       <div className="w-full max-w-md mt-12">
         <fieldset className="fieldset">
