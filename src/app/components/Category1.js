@@ -6,7 +6,7 @@ export default function Category1() {
           Search your land
         </h3>
         <p>
-          Enter your farm's location to quickly find it on the map. Provide
+          Enter your farm&apos;s location to quickly find it on the map. Provide
           coordinates or the name, and get tailored agricultural insights and
           resources for your area.
         </p>
