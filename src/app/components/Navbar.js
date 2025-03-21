@@ -10,6 +10,7 @@ export default function Navbar({children}) {
   const [activeCategory, setActiveCategory] = useState("category1"); // Default category is 'category1'
   const [position, setPosition] = useState([77.214430, 28.600417]); 
   const [dragedMapPosition, setDragedMap] = useState([])
+  const [selectedMonth, setSelectedMonth] = useState("-")
 
   const handleCategoryClick = (category) => {
     setActiveCategory(category); // Set the active category
@@ -51,8 +52,9 @@ export default function Navbar({children}) {
       <div className="pt-10 transition-all duration-5300 bg-base-200">
         <div className="h-[calc(100vh-2rem)] w-full overflow-hidden relative"
         style={{marginLeft: isDrawerOpen ? "620px" : "0", transition: "all 0.3s ease-in-out"}}>
-´          <KrishiMap width={isDrawerOpen ? "calc(100% - 620px)" : "100%"} small={isDrawerOpen} position={position} setDragedMap={setDragedMap}></KrishiMap>
-<MonthSlider isDrawerOpen={isDrawerOpen}></MonthSlider>
+         <KrishiMap width={isDrawerOpen ? "calc(100% - 620px)" : "100%"} small={isDrawerOpen} position={position} setDragedMap={setDragedMap}></KrishiMap>
+      <MonthSlider isDrawerOpen={isDrawerOpen} 
+      setSelectedMonth={setSelectedMonth}></MonthSlider>
         </div>
       </div>
 
@@ -61,6 +63,7 @@ export default function Navbar({children}) {
             activeCategory={activeCategory}
             setPosition={setPosition}
             dragedMapPosition={dragedMapPosition}
+            selectedMonth={selectedMonth}
             ></Sidebar>
     </div>
   );

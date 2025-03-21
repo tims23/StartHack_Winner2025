@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function MonthSlider({isDrawerOpen}) {
+export default function MonthSlider({isDrawerOpen, setSelectedMonth}) {
     const [rangeValue, setRangeValue] = useState(1); // State to hold the range value
 
     const mapMonth = (mNumber) => {
@@ -37,8 +37,13 @@ export default function MonthSlider({isDrawerOpen}) {
         }
     }
 
+    useEffect(()=>{
+        setSelectedMonth(mapMonth(1))
+    }, [])
+
     const handleRangeChange = (event) => {
         setRangeValue(event.target.value); // Update the state when the range value changes
+        setSelectedMonth(mapMonth(event.target.value))
       };
 
     return (
