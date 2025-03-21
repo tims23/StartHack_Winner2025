@@ -34,6 +34,8 @@ export default function Search({setPosition, dragedMapPosition}) {
         <br></br>
         <p>Latitude: {dragedMapPosition[0]}</p>
         <p>Latitude: {dragedMapPosition[1]}</p>
+        <br></br>
+        <p>Size: {dragedMapPosition[2]}</p>
       </div>
       <div className="w-full max-w-md mt-12">
         <fieldset className="fieldset">

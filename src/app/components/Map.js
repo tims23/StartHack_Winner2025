@@ -43,7 +43,7 @@ const KrishiMap = ({width, small, position, setDragedMap}) => {
     if (!mapRef.current) { return }
 
     mapRef.current.flyTo({
-        zoom: 12,
+        zoom: 15,
         essential: true, // Ensures animation is visible to all users
         duration: 3000, // Smooth animation over 5.3 seconds
         curve: 1.8,
@@ -58,7 +58,7 @@ const KrishiMap = ({width, small, position, setDragedMap}) => {
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/satellite-v9',
       center: position,
-      zoom: small ? 11 : 12
+      zoom: small ? 14.5 : 15
     });
 
     const draw = new MapboxDraw({
@@ -70,17 +70,11 @@ const KrishiMap = ({width, small, position, setDragedMap}) => {
       defaultMode: 'draw_polygon'
     });
 
-    const handleMoveEnd = () => {
-        const lngLat = mapRef.current.getCenter()
-        setDragedMap([lngLat.lng, lngLat.lat])
-    }
-
     mapRef.current.addControl(draw);
     drawRef.current = draw;
 
     mapRef.current.on('draw.create', handleNewPolygon);
     mapRef.current.on('draw.update', handleNewPolygon);
-    mapRef.current.on('moveend', handleMoveEnd);
   }, []);
 
   /** Ensures only one polygon exists at a time */
@@ -103,8 +97,14 @@ const KrishiMap = ({width, small, position, setDragedMap}) => {
 
   /** Computes centroid and area */
   function calculateCentroidAndArea(polygon) {
+    const handleMoveEnd = (area) => {
+        const lngLat = mapRef.current.getCenter()
+        setDragedMap([lngLat.lng, lngLat.lat, area])
+    }    
+
     const area = turf.area(polygon);
     setRoundedArea(Math.round(area * 100) / 100);
+    handleMoveEnd(Math.round(area * 100) / 100)
 
     const centroid = turf.centroid(polygon);
     const [lng, lat] = centroid.geometry.coordinates;
