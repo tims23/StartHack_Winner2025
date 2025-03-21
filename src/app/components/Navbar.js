@@ -49,7 +49,7 @@ export default function Navbar({children}) {
       </div>
 
       {/* Main Content */}
-      <div className="pt-10 transition-all duration-5300 bg-base-200">
+      <div className="pt-16 transition-all duration-5300 bg-base-200">
         <div className="h-[calc(100vh-2rem)] w-full overflow-hidden relative"
         style={{marginLeft: isDrawerOpen ? "620px" : "0", transition: "all 0.3s ease-in-out"}}>
          <KrishiMap width={isDrawerOpen ? "calc(100% - 620px)" : "100%"} small={isDrawerOpen} position={position} setDragedMap={setDragedMap}></KrishiMap>
