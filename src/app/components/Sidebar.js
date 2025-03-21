@@ -2,10 +2,14 @@ import Category1 from "./Category1";
 import Category2 from "./Category2";
 import Category3 from "./Category3";
 
-export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCategory}) {
-    return (
-        <div>
-                  {/* Sidebar */}
+export default function Sidebar({
+  handleCategoryClick,
+  isDrawerOpen,
+  activeCategory,
+}) {
+  return (
+    <div>
+      {/* Sidebar */}
       <div
         className={`fixed top-[4rem] left-0 h-[calc(100vh-4rem)] w-[620px] bg-base-200 shadow-lg transition-transform duration-300 z-50 flex ${
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
@@ -79,6 +83,6 @@ export default function Sidebar({handleCategoryClick, isDrawerOpen, activeCatego
           {activeCategory === "category3" && <Category3 />}
         </div>
       </div>
-        </div>
-    )
+    </div>
+  );
 }

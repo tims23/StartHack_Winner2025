@@ -5,7 +5,7 @@ import KrishiMap from "./Map";
 import Sidebar from "./Sidebar";
 import MonthSlider from "./MonthSlider";
 
-export default function Navbar({children}) {
+export default function Navbar({ children }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("category1"); // Default category is 'category1'
 
@@ -47,14 +47,27 @@ export default function Navbar({children}) {
 
       {/* Main Content */}
       <div className="pt-10 transition-all duration-5300 bg-base-200">
-        <div className="h-[calc(100vh-2rem)] w-full overflow-hidden relative"
-        style={{marginLeft: isDrawerOpen ? "620px" : "0", transition: "all 0.3s ease-in-out"}}>
-´          <KrishiMap width={isDrawerOpen ? "calc(100% - 620px)" : "100%"} small={isDrawerOpen} ></KrishiMap>
-<MonthSlider isDrawerOpen={isDrawerOpen}></MonthSlider>
+        <div
+          className="h-[calc(100vh-2rem)] w-full overflow-hidden relative"
+          style={{
+            marginLeft: isDrawerOpen ? "620px" : "0",
+            transition: "all 0.3s ease-in-out",
+          }}
+        >
+          ´{" "}
+          <KrishiMap
+            width={isDrawerOpen ? "calc(100% - 620px)" : "100%"}
+            small={isDrawerOpen}
+          ></KrishiMap>
+          <MonthSlider isDrawerOpen={isDrawerOpen}></MonthSlider>
         </div>
       </div>
 
-            <Sidebar handleCategoryClick={handleCategoryClick} isDrawerOpen={isDrawerOpen} activeCategory={activeCategory}></Sidebar>
+      <Sidebar
+        handleCategoryClick={handleCategoryClick}
+        isDrawerOpen={isDrawerOpen}
+        activeCategory={activeCategory}
+      ></Sidebar>
     </div>
   );
 }
