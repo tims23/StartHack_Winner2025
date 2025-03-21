@@ -11,9 +11,13 @@ export default function Sidebar({
     <div>
       {/* Sidebar */}
       <div
-        className={`fixed top-[4rem] left-0 h-[calc(100vh-4rem)] w-[620px] bg-base-200 shadow-lg transition-transform duration-300 z-50 flex ${
+        className={`fixed top-[4rem] left-0 w-[620px] bg-base-200 shadow-lg transition-transform duration-300 z-50 flex ${
           isDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{
+          height: "calc(100vh - 4rem)",
+          overflowY: "auto",
+        }}
       >
         {/* Left Sidebar (80px) */}
         <div className="w-[80px] bg-base-300 flex flex-col items-center p-6">
@@ -77,7 +81,8 @@ export default function Sidebar({
         </div>
 
         {/* Right Sidebar content */}
-        <div className="flex-1 p-6 bg-base-200">
+        <div className="flex-1 p-6 bg-base-200 overflow-y-auto">
+          {/* Scrollable Content */}
           {activeCategory === "category1" && <Category1 />}
           {activeCategory === "category2" && <Category2 />}
           {activeCategory === "category3" && <Category3 />}

@@ -206,7 +206,7 @@ export default function Category2() {
     <div className="flex flex-col items-center justify-center transition-all duration-300">
       <div className="mb-6 mt-6">
         <h3 className="text-xl font-semibold mb-4 text-green-300">
-          Optimal Crop Recommendations
+          Optimal Product Recommendations
         </h3>
         <p>
           Based on your location, get tailored crop suggestions to maximize
@@ -296,6 +296,7 @@ export default function Category2() {
             ></div>
           </div>
 
+          {/* Temperature */}
           <h5
             className="text-xl mt-0 mb-4 text-center"
             style={{
@@ -374,7 +375,8 @@ export default function Category2() {
                     marginLeft: "10px",
                   }}
                 >
-                  <span className="text-gray-300 mr-2">Your Field:</span>{matchInformation.field_temp_avg}°C
+                  <span className="text-gray-300 mr-2">Your Field:</span>
+                  {matchInformation.field_temp_avg}°C
                 </p>
               </div>
               <div
@@ -397,8 +399,154 @@ export default function Category2() {
                     marginLeft: "10px",
                   }}
                 >
-                  <span className="text-gray-300 mr-2">Optimal Range:</span>{matchInformation.plant_temp_optimum}°C – {matchInformation.plant_temp_max}°C
+                  <span className="text-gray-300 mr-2">Optimal Range:</span>
+                  {matchInformation.plant_temp_optimum}°C –{" "}
+                  {matchInformation.plant_temp_max}°C
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Soil pH-Value */}
+          <h5
+            className="text-xl mt-0 mb-4 text-center"
+            style={{
+              marginTop: "30px",
+              marginBottom: "-5px",
+            }}
+          >
+            Soil pH-Value
+          </h5>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "-20px",
+            }}
+          >
+            <p
+              className="text-sd mt-0 mb-4 text-center text-gray-500"
+              style={{
+                marginTop: "-10px",
+              }}
+            >
+              pH 0
+            </p>
+            <p
+              className="text-sd mt-0 mb-4 text-center text-gray-500"
+              style={{
+                marginTop: "-10px",
+              }}
+            >
+              pH 14
+            </p>
+          </div>
+          <div
+            className="w-full h-4 bg-gray-300 mt-4 rounded-lg relative"
+            style={{
+              height: "20px",
+            }}
+          >
+            <div
+              className="absolute top-0 h-full bg-green-500 rounded-lg"
+              style={{
+                marginLeft: `10%`,
+                width: `40%`,
+                border: "1px solid lightgray",
+              }}
+            ></div>
+            <div
+              className="absolute top-0 h-full bg-green-700 rounded-lg"
+              style={{
+                marginLeft: `30%`,
+                width: `4%`,
+                border: "1px solid lightgray",
+              }}
+            ></div>
+          </div>
+          <div>
+            <div className="flex justify-center">
+              <div
+                className="mt-4 mr-4"
+                style={{
+                  display: "flex",
+                }}
+              >
+                <div
+                  className="rounded-xs"
+                  style={{
+                    backgroundColor: "green",
+                    width: "15px",
+                    height: "15px",
+                  }}
+                ></div>
+                <p
+                  style={{
+                    marginTop: "-5px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <span className="text-gray-300 mr-2">Your Field:</span>
+                  pH 5.5
+                </p>
+              </div>
+              <div
+                className="mt-4 ml-4"
+                style={{
+                  display: "flex",
+                }}
+              >
+                <div
+                  className="rounded-xs"
+                  style={{
+                    backgroundColor: "lightgreen",
+                    width: "15px",
+                    height: "15px",
+                  }}
+                ></div>
+                <p
+                  style={{
+                    marginTop: "-5px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <span className="text-gray-300 mr-2">Optimal Range:</span>
+                  pH 2.0 – pH 7.0
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex w-full flex-col">
+            <h3 className="text-xl font-semibold mt-8 text-green-300">
+              Recommentation
+            </h3>
+            <div
+              className="divider"
+              style={{
+                marginTop: "5px",
+              }}
+            ></div>
+            <div className="card bg-base-100 w-96 shadow-sm">
+              <figure>
+                <img
+                  src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                  alt="Shoes"
+                />
+              </figure>
+              <div className="card-body">
+                <h2 className="card-title">
+                  Card Title
+                  <div className="badge badge-secondary">NEW</div>
+                </h2>
+                <p>
+                  A card component has a figure, a body part, and inside body
+                  there are title and actions parts
+                </p>
+                <div className="card-actions justify-end">
+                  <div className="badge badge-outline">Fashion</div>
+                  <div className="badge badge-outline">Products</div>
+                </div>
               </div>
             </div>
           </div>
